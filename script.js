@@ -1,410 +1,467 @@
 // Application State
 const state = {
     currentStep: 0,
-    choices: {
-        shape: 'oval',
-        color: '#ffc0cb',
-        pattern: 'none',
-        patternColor: '#ffffff'
-    },
-    colors1: [],
-    colors2: []
+    selectedTree: null,
+    selectedLights: null,
+    placedOrnaments: []
 };
 
-// Steps configuration
-const steps = [
-    {
-        name: 'Shape Selection',
-        type: 'shape',
-        options: ['round', 'square', 'oval']
-    },
-    {
-        name: 'Color Selection',
-        type: 'color',
-        options: [] // Will be populated with random colors
-    },
-    {
-        name: 'Pattern Selection',
-        type: 'pattern',
-        options: ['none', 'polka-dots', 'grid', 'stripes']
-    },
-    {
-        name: 'Pattern Color',
-        type: 'pattern-color',
-        options: [] // Will be populated with random colors
-    }
-];
+// Light color schemes
+const lightSchemes = {
+    mixed: ['#ff0000', '#0000ff', '#ffff00', '#00ff00', '#ff00ff'],
+    white: ['#ffffff', '#f0f0f0', '#e8e8e8'],
+    yellow: ['#FFD700', '#FFA500', '#FFED4E'],
+    orange: ['#ff8c00', '#ff6347', '#ff4500']
+};
+
+// Sound effects using Web Audio API
+let audioContext;
+let clickSound;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    generateRandomColors();
     setupWelcomeScreen();
+    setupAudio();
 });
 
-// Generate random colors
-function generateRandomColors() {
-    state.colors1 = [
-        generateRandomColor(),
-        generateRandomColor(),
-        generateRandomColor()
-    ];
-    state.colors2 = [
-        generateRandomColor(),
-        generateRandomColor(),
-        generateRandomColor()
-    ];
-    steps[1].options = state.colors1;
-    steps[3].options = state.colors2;
+// Setup Audio
+function setupAudio() {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
 }
 
-function generateRandomColor() {
-    const hue = Math.floor(Math.random() * 360);
-    const saturation = 60 + Math.floor(Math.random() * 40);
-    const lightness = 50 + Math.floor(Math.random() * 30);
-    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+function playClickSound() {
+    if (!audioContext) return;
+
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1);
 }
 
-// Welcome Screen Setup
+// Welcome Screen
 function setupWelcomeScreen() {
     const welcomeScreen = document.getElementById('welcome-screen');
     welcomeScreen.addEventListener('click', startExperience);
 }
 
 function startExperience() {
+    playClickSound();
     const welcomeScreen = document.getElementById('welcome-screen');
-    const selectionScreen = document.getElementById('selection-screen');
+    const step1 = document.getElementById('step1');
 
     welcomeScreen.classList.remove('active');
-    selectionScreen.classList.add('active');
+    step1.classList.add('active');
 
-    setupSelectionScreen();
+    state.currentStep = 1;
+    setupTreeSelection();
+    updateNavigationArrows();
 }
 
-// Selection Screen Setup
-function setupSelectionScreen() {
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
+// Tree Selection (Step 1)
+function setupTreeSelection() {
+    const treeOptions = document.querySelectorAll('.tree-option');
 
-    prevBtn.addEventListener('click', goToPreviousStep);
-    nextBtn.addEventListener('click', goToNextStep);
-
-    renderStep();
+    treeOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            playClickSound();
+            const treeType = this.dataset.tree;
+            selectTree(treeType);
+        });
+    });
 }
 
-function renderStep() {
-    const step = steps[state.currentStep];
-    const optionsContainer = document.getElementById('options-container');
-    const stepIndicator = document.getElementById('step-indicator');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
+function selectTree(treeType) {
+    state.selectedTree = treeType;
 
-    // Update step indicator
-    stepIndicator.textContent = step.name;
+    const selectedTreeDiv = document.getElementById('selected-tree');
+    selectedTreeDiv.className = `tree ${treeType}-tree`;
 
-    // Update navigation buttons
-    prevBtn.disabled = state.currentStep === 0;
-    nextBtn.textContent = state.currentStep === steps.length - 1 ? 'Finish' : '>';
+    // Enable next arrow after selection
+    document.getElementById('next-arrow').classList.add('active');
+}
 
-    // Clear options container
-    optionsContainer.innerHTML = '';
-    optionsContainer.className = 'options-container fade-in';
+// Lights Selection (Step 2)
+function setupLightsSelection() {
+    const lightOptions = document.querySelectorAll('.light-option');
 
-    // Render options based on step type
-    step.options.forEach(option => {
-        const optionElement = createOptionElement(step.type, option);
-        optionsContainer.appendChild(optionElement);
+    lightOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            playClickSound();
+            const lightsType = this.dataset.lights;
+            selectLights(lightsType);
+        });
+    });
+}
+
+function selectLights(lightsType) {
+    state.selectedLights = lightsType;
+
+    const treeWithLights = document.getElementById('tree-with-lights');
+    treeWithLights.className = `tree ${state.selectedTree}-tree`;
+
+    const lightsContainer = treeWithLights.querySelector('.lights-container');
+    lightsContainer.innerHTML = '';
+
+    // Generate light positions
+    const lightPositions = generateLightPositions();
+    const colors = lightSchemes[lightsType];
+
+    lightPositions.forEach((pos, index) => {
+        const light = document.createElement('div');
+        light.className = 'light';
+        light.style.left = `${pos.x}%`;
+        light.style.top = `${pos.y}%`;
+        light.style.backgroundColor = colors[index % colors.length];
+        light.style.color = colors[index % colors.length];
+        light.style.animationDelay = `${Math.random() * 1.5}s`;
+        lightsContainer.appendChild(light);
     });
 
-    // Render current nail
-    renderNail();
+    // Enable next arrow after selection
+    document.getElementById('next-arrow').classList.add('active');
 }
 
-function createOptionElement(type, option) {
-    const div = document.createElement('div');
-    div.className = `option ${type}-option`;
+function generateLightPositions() {
+    const positions = [];
+    const rows = 8;
 
-    switch(type) {
-        case 'shape':
-            div.innerHTML = createShapePreview(option);
-            div.addEventListener('click', () => selectShape(option));
-            break;
-        case 'color':
-            div.style.backgroundColor = option;
-            div.addEventListener('click', () => selectColor(option));
-            break;
-        case 'pattern':
-            div.innerHTML = createPatternPreview(option);
-            div.addEventListener('click', () => selectPattern(option));
-            break;
-        case 'pattern-color':
-            div.style.backgroundColor = option;
-            div.addEventListener('click', () => selectPatternColor(option));
-            break;
+    for (let row = 0; row < rows; row++) {
+        const y = 15 + (row * 8);
+        const width = 60 - (row * 7);
+        const numLights = Math.max(2, 5 - Math.floor(row / 2));
+
+        for (let i = 0; i < numLights; i++) {
+            const x = 50 - width/2 + (i * width / (numLights - 1));
+            positions.push({ x, y });
+        }
     }
 
-    return div;
+    return positions;
 }
 
-function createShapePreview(shape) {
-    let path = '';
-    switch(shape) {
-        case 'round':
-            path = '<ellipse cx="25" cy="30" rx="20" ry="25" fill="#e0e0e0" stroke="#999" stroke-width="2"/>';
-            break;
-        case 'square':
-            path = '<rect x="5" y="5" width="40" height="50" rx="5" fill="#e0e0e0" stroke="#999" stroke-width="2"/>';
-            break;
-        case 'oval':
-            path = '<ellipse cx="25" cy="30" rx="18" ry="28" fill="#e0e0e0" stroke="#999" stroke-width="2"/>';
-            break;
+// Ornaments Selection (Step 3)
+function setupOrnamentsSelection() {
+    const ornamentOptions = document.querySelectorAll('.ornament-option');
+    const dropZone = document.getElementById('tree-with-ornaments');
+
+    // Setup tree with lights
+    dropZone.className = `tree ${state.selectedTree}-tree drop-zone`;
+    const lightsContainer = dropZone.querySelector('.lights-container');
+    lightsContainer.innerHTML = '';
+
+    // Copy lights from step 2
+    const lightPositions = generateLightPositions();
+    const colors = lightSchemes[state.selectedLights];
+
+    lightPositions.forEach((pos, index) => {
+        const light = document.createElement('div');
+        light.className = 'light';
+        light.style.left = `${pos.x}%`;
+        light.style.top = `${pos.y}%`;
+        light.style.backgroundColor = colors[index % colors.length];
+        light.style.color = colors[index % colors.length];
+        light.style.animationDelay = `${Math.random() * 1.5}s`;
+        lightsContainer.appendChild(light);
+    });
+
+    // Setup drag and drop
+    ornamentOptions.forEach(option => {
+        option.addEventListener('dragstart', handleDragStart);
+    });
+
+    dropZone.addEventListener('dragover', handleDragOver);
+    dropZone.addEventListener('drop', handleDrop);
+
+    // Enable next arrow (can proceed even without placing ornaments)
+    document.getElementById('next-arrow').classList.add('active');
+}
+
+let draggedOrnamentType = null;
+
+function handleDragStart(e) {
+    draggedOrnamentType = this.dataset.ornament;
+    e.dataTransfer.effectAllowed = 'copy';
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    playClickSound();
+
+    const dropZone = document.getElementById('tree-with-ornaments');
+    const rect = dropZone.getBoundingClientRect();
+
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    // Only allow ornaments within tree bounds
+    if (y > 15 && y < 85 && x > 25 && x < 75) {
+        placeOrnament(draggedOrnamentType, x, y);
     }
-    return `<svg class="shape-preview" viewBox="0 0 50 60">${path}</svg>`;
 }
 
-function createPatternPreview(pattern) {
-    const baseNail = '<rect x="5" y="5" width="50" height="60" rx="10" fill="#ffc0cb"/>';
-    let patternSvg = '';
+function placeOrnament(type, x, y) {
+    const ornamentsContainer = document.querySelector('#tree-with-ornaments .ornaments-container');
 
-    switch(pattern) {
-        case 'none':
-            return `<svg class="pattern-preview" viewBox="0 0 60 70">
-                ${baseNail}
-                <text x="30" y="40" text-anchor="middle" font-size="12" fill="#666">None</text>
-            </svg>`;
-        case 'polka-dots':
-            patternSvg = `
-                <circle cx="15" cy="20" r="4" fill="#333"/>
-                <circle cx="30" cy="25" r="4" fill="#333"/>
-                <circle cx="45" cy="20" r="4" fill="#333"/>
-                <circle cx="20" cy="40" r="4" fill="#333"/>
-                <circle cx="40" cy="45" r="4" fill="#333"/>
-            `;
-            break;
-        case 'grid':
-            patternSvg = `
-                <line x1="10" y1="10" x2="10" y2="60" stroke="#333" stroke-width="1"/>
-                <line x1="20" y1="10" x2="20" y2="60" stroke="#333" stroke-width="1"/>
-                <line x1="30" y1="10" x2="30" y2="60" stroke="#333" stroke-width="1"/>
-                <line x1="40" y1="10" x2="40" y2="60" stroke="#333" stroke-width="1"/>
-                <line x1="50" y1="10" x2="50" y2="60" stroke="#333" stroke-width="1"/>
-                <line x1="5" y1="15" x2="55" y2="15" stroke="#333" stroke-width="1"/>
-                <line x1="5" y1="25" x2="55" y2="25" stroke="#333" stroke-width="1"/>
-                <line x1="5" y1="35" x2="55" y2="35" stroke="#333" stroke-width="1"/>
-                <line x1="5" y1="45" x2="55" y2="45" stroke="#333" stroke-width="1"/>
-                <line x1="5" y1="55" x2="55" y2="55" stroke="#333" stroke-width="1"/>
-            `;
-            break;
-        case 'stripes':
-            patternSvg = `
-                <line x1="0" y1="15" x2="60" y2="15" stroke="#333" stroke-width="3"/>
-                <line x1="0" y1="25" x2="60" y2="25" stroke="#333" stroke-width="3"/>
-                <line x1="0" y1="35" x2="60" y2="35" stroke="#333" stroke-width="3"/>
-                <line x1="0" y1="45" x2="60" y2="45" stroke="#333" stroke-width="3"/>
-                <line x1="0" y1="55" x2="60" y2="55" stroke="#333" stroke-width="3"/>
-            `;
-            break;
-    }
+    const ornament = document.createElement('div');
+    ornament.className = `placed-ornament ornament-preview ${type}`;
+    ornament.style.left = `${x}%`;
+    ornament.style.top = `${y}%`;
+    ornament.style.animationDelay = `${Math.random() * 3}s`;
 
-    return `<svg class="pattern-preview" viewBox="0 0 60 70">${baseNail}${patternSvg}</svg>`;
-}
+    ornamentsContainer.appendChild(ornament);
 
-// Selection handlers
-function selectShape(shape) {
-    state.choices.shape = shape;
-    renderNail();
-}
-
-function selectColor(color) {
-    state.choices.color = color;
-    renderNail();
-}
-
-function selectPattern(pattern) {
-    state.choices.pattern = pattern;
-    renderNail();
-}
-
-function selectPatternColor(color) {
-    state.choices.patternColor = color;
-    renderNail();
-}
-
-// Render current nail with choices
-function renderNail() {
-    const nailContainer = document.getElementById('single-nail');
-    const { shape, color, pattern, patternColor } = state.choices;
-
-    let nailSvg = '';
-
-    // Create nail shape
-    switch(shape) {
-        case 'round':
-            nailSvg += `<ellipse cx="100" cy="150" rx="60" ry="80" fill="${color}" stroke="#d4a5a5" stroke-width="3"/>`;
-            break;
-        case 'square':
-            nailSvg += `<rect x="40" y="70" width="120" height="160" rx="15" fill="${color}" stroke="#d4a5a5" stroke-width="3"/>`;
-            break;
-        case 'oval':
-            nailSvg += `<ellipse cx="100" cy="150" rx="50" ry="90" fill="${color}" stroke="#d4a5a5" stroke-width="3"/>`;
-            break;
-    }
-
-    // Add pattern
-    if (pattern !== 'none') {
-        nailSvg += createNailPattern(shape, pattern, patternColor);
-    }
-
-    nailContainer.innerHTML = nailSvg;
-}
-
-function createNailPattern(shape, pattern, color) {
-    let patternSvg = '';
-
-    switch(pattern) {
-        case 'polka-dots':
-            patternSvg = `
-                <circle cx="70" cy="110" r="8" fill="${color}"/>
-                <circle cx="100" cy="130" r="8" fill="${color}"/>
-                <circle cx="130" cy="110" r="8" fill="${color}"/>
-                <circle cx="80" cy="160" r="8" fill="${color}"/>
-                <circle cx="120" cy="170" r="8" fill="${color}"/>
-                <circle cx="100" cy="190" r="8" fill="${color}"/>
-            `;
-            break;
-        case 'grid':
-            patternSvg = `
-                <line x1="60" y1="80" x2="60" y2="220" stroke="${color}" stroke-width="2"/>
-                <line x1="80" y1="80" x2="80" y2="220" stroke="${color}" stroke-width="2"/>
-                <line x1="100" y1="80" x2="100" y2="220" stroke="${color}" stroke-width="2"/>
-                <line x1="120" y1="80" x2="120" y2="220" stroke="${color}" stroke-width="2"/>
-                <line x1="140" y1="80" x2="140" y2="220" stroke="${color}" stroke-width="2"/>
-                <line x1="50" y1="100" x2="150" y2="100" stroke="${color}" stroke-width="2"/>
-                <line x1="50" y1="120" x2="150" y2="120" stroke="${color}" stroke-width="2"/>
-                <line x1="50" y1="140" x2="150" y2="140" stroke="${color}" stroke-width="2"/>
-                <line x1="50" y1="160" x2="150" y2="160" stroke="${color}" stroke-width="2"/>
-                <line x1="50" y1="180" x2="150" y2="180" stroke="${color}" stroke-width="2"/>
-                <line x1="50" y1="200" x2="150" y2="200" stroke="${color}" stroke-width="2"/>
-            `;
-            break;
-        case 'stripes':
-            patternSvg = `
-                <line x1="40" y1="100" x2="160" y2="100" stroke="${color}" stroke-width="5"/>
-                <line x1="40" y1="120" x2="160" y2="120" stroke="${color}" stroke-width="5"/>
-                <line x1="40" y1="140" x2="160" y2="140" stroke="${color}" stroke-width="5"/>
-                <line x1="40" y1="160" x2="160" y2="160" stroke="${color}" stroke-width="5"/>
-                <line x1="40" y1="180" x2="160" y2="180" stroke="${color}" stroke-width="5"/>
-                <line x1="40" y1="200" x2="160" y2="200" stroke="${color}" stroke-width="5"/>
-            `;
-            break;
-    }
-
-    return patternSvg;
+    state.placedOrnaments.push({ type, x, y });
 }
 
 // Navigation
-function goToPreviousStep() {
+function updateNavigationArrows() {
+    const prevArrow = document.getElementById('prev-arrow');
+    const nextArrow = document.getElementById('next-arrow');
+
+    // Show/hide arrows based on current step
     if (state.currentStep > 0) {
-        state.currentStep--;
-        renderStep();
+        prevArrow.classList.add('active');
+    } else {
+        prevArrow.classList.remove('active');
+    }
+
+    // Next arrow is shown but not active until a choice is made
+    // This is handled in each step's selection functions
+}
+
+document.getElementById('prev-arrow').addEventListener('click', () => {
+    playClickSound();
+    if (state.currentStep > 1) {
+        goToPreviousStep();
+    }
+});
+
+document.getElementById('next-arrow').addEventListener('click', () => {
+    playClickSound();
+    goToNextStep();
+});
+
+function goToPreviousStep() {
+    const currentScreen = document.querySelector('.screen.active');
+    currentScreen.classList.remove('active');
+
+    state.currentStep--;
+
+    const prevScreen = document.getElementById(`step${state.currentStep}`);
+    prevScreen.classList.add('active');
+
+    updateNavigationArrows();
+
+    // Hide next arrow until selection is made again
+    if (state.currentStep === 1 && !state.selectedTree) {
+        document.getElementById('next-arrow').classList.remove('active');
+    } else if (state.currentStep === 2 && !state.selectedLights) {
+        document.getElementById('next-arrow').classList.remove('active');
     }
 }
 
 function goToNextStep() {
-    if (state.currentStep < steps.length - 1) {
-        state.currentStep++;
-        renderStep();
-    } else {
-        showFinalScreen();
+    const currentScreen = document.querySelector('.screen.active');
+
+    // Validate selections
+    if (state.currentStep === 1 && !state.selectedTree) return;
+    if (state.currentStep === 2 && !state.selectedLights) return;
+
+    currentScreen.classList.remove('active');
+
+    state.currentStep++;
+
+    if (state.currentStep === 2) {
+        const step2 = document.getElementById('step2');
+        step2.classList.add('active');
+        setupLightsSelection();
+        document.getElementById('next-arrow').classList.remove('active');
+    } else if (state.currentStep === 3) {
+        const step3 = document.getElementById('step3');
+        step3.classList.add('active');
+        setupOrnamentsSelection();
+    } else if (state.currentStep === 4) {
+        showFinale();
     }
+
+    updateNavigationArrows();
 }
 
-// Final Screen
-function showFinalScreen() {
-    const selectionScreen = document.getElementById('selection-screen');
-    const finalScreen = document.getElementById('final-screen');
+// Finale Screen
+function showFinale() {
+    const currentScreen = document.querySelector('.screen.active');
+    currentScreen.classList.remove('active');
 
-    selectionScreen.classList.remove('active');
-    finalScreen.classList.add('active');
+    const finaleScreen = document.getElementById('finale');
+    finaleScreen.classList.add('active');
 
-    renderFinalHand();
+    // Hide navigation arrows
+    document.getElementById('prev-arrow').classList.remove('active');
+    document.getElementById('next-arrow').classList.remove('active');
+
+    // Setup final tree
+    const finalTree = document.getElementById('final-tree');
+    finalTree.className = `tree ${state.selectedTree}-tree`;
+
+    // Add lights
+    const lightsContainer = finalTree.querySelector('.lights-container');
+    lightsContainer.innerHTML = '';
+
+    const lightPositions = generateLightPositions();
+    const colors = lightSchemes[state.selectedLights];
+
+    lightPositions.forEach((pos, index) => {
+        const light = document.createElement('div');
+        light.className = 'light';
+        light.style.left = `${pos.x}%`;
+        light.style.top = `${pos.y}%`;
+        light.style.backgroundColor = colors[index % colors.length];
+        light.style.color = colors[index % colors.length];
+        light.style.animationDelay = `${Math.random() * 1.5}s`;
+        lightsContainer.appendChild(light);
+    });
+
+    // Add ornaments
+    const ornamentsContainer = finalTree.querySelector('.ornaments-container');
+    ornamentsContainer.innerHTML = '';
+
+    state.placedOrnaments.forEach(orn => {
+        const ornament = document.createElement('div');
+        ornament.className = `placed-ornament ornament-preview ${orn.type}`;
+        ornament.style.left = `${orn.x}%`;
+        ornament.style.top = `${orn.y}%`;
+        ornament.style.animationDelay = `${Math.random() * 3}s`;
+        ornamentsContainer.appendChild(ornament);
+    });
+
+    // Start snowfall
+    startSnowfall();
+
+    // Play music
+    playChristmasMusic();
 }
 
-function renderFinalHand() {
-    const finalNails = document.querySelectorAll('.final-nail');
-    const nailPositions = [
-        { x: 80, y: 185, width: 36, height: 25 },  // Thumb
-        { x: 120, y: 105, width: 32, height: 25 }, // Index
-        { x: 150, y: 75, width: 32, height: 28 },  // Middle
-        { x: 180, y: 95, width: 32, height: 26 },  // Ring
-        { x: 210, y: 133, width: 28, height: 22 }  // Pinky
-    ];
+// Snowfall Animation
+function startSnowfall() {
+    const canvas = document.getElementById('snowfall-canvas');
+    const ctx = canvas.getContext('2d');
 
-    finalNails.forEach((nailElement, index) => {
-        const pos = nailPositions[index];
-        const { shape, color, pattern, patternColor } = state.choices;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-        let nailSvg = '';
+    const snowflakes = [];
+    const numFlakes = 100;
 
-        // Create nail shape based on position
-        const cx = pos.x;
-        const cy = pos.y;
-        const rx = pos.width / 2;
-        const ry = pos.height / 2;
+    // Create snowflakes
+    for (let i = 0; i < numFlakes; i++) {
+        snowflakes.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            radius: Math.random() * 3 + 1,
+            speed: Math.random() * 1 + 0.5,
+            drift: Math.random() * 0.5 - 0.25
+        });
+    }
 
-        switch(shape) {
-            case 'round':
-                nailSvg += `<ellipse cx="${cx}" cy="${cy}" rx="${rx + 2}" ry="${ry + 2}" fill="${color}" stroke="#d4a5a5" stroke-width="1"/>`;
-                break;
-            case 'square':
-                nailSvg += `<rect x="${cx - rx}" y="${cy - ry}" width="${pos.width}" height="${pos.height}" rx="${rx / 3}" fill="${color}" stroke="#d4a5a5" stroke-width="1"/>`;
-                break;
-            case 'oval':
-                nailSvg += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry + 2}" fill="${color}" stroke="#d4a5a5" stroke-width="1"/>`;
-                break;
-        }
+    function animateSnowfall() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
 
-        // Add pattern to final nails
-        if (pattern !== 'none') {
-            nailSvg += createFinalNailPattern(cx, cy, rx, ry, pattern, patternColor);
-        }
+        snowflakes.forEach(flake => {
+            ctx.moveTo(flake.x, flake.y);
+            ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
 
-        nailElement.innerHTML = nailSvg;
+            flake.y += flake.speed;
+            flake.x += flake.drift;
+
+            if (flake.y > canvas.height) {
+                flake.y = 0;
+                flake.x = Math.random() * canvas.width;
+            }
+
+            if (flake.x > canvas.width) {
+                flake.x = 0;
+            } else if (flake.x < 0) {
+                flake.x = canvas.width;
+            }
+        });
+
+        ctx.fill();
+        requestAnimationFrame(animateSnowfall);
+    }
+
+    animateSnowfall();
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     });
 }
 
-function createFinalNailPattern(cx, cy, rx, ry, pattern, color) {
-    let patternSvg = '';
-    const scale = 0.3; // Scale down patterns for smaller nails
+// Christmas Music using Web Audio API
+function playChristmasMusic() {
+    if (!audioContext) return;
 
-    switch(pattern) {
-        case 'polka-dots':
-            patternSvg = `
-                <circle cx="${cx - rx/2}" cy="${cy - ry/2}" r="${3 * scale * 10}" fill="${color}"/>
-                <circle cx="${cx + rx/2}" cy="${cy - ry/2}" r="${3 * scale * 10}" fill="${color}"/>
-                <circle cx="${cx}" cy="${cy}" r="${3 * scale * 10}" fill="${color}"/>
-                <circle cx="${cx - rx/3}" cy="${cy + ry/2}" r="${3 * scale * 10}" fill="${color}"/>
-                <circle cx="${cx + rx/3}" cy="${cy + ry/2}" r="${3 * scale * 10}" fill="${color}"/>
-            `;
-            break;
-        case 'grid':
-            const gridSpacing = rx / 2;
-            patternSvg = `
-                <line x1="${cx - rx}" y1="${cy - ry}" x2="${cx - rx}" y2="${cy + ry}" stroke="${color}" stroke-width="1"/>
-                <line x1="${cx}" y1="${cy - ry}" x2="${cx}" y2="${cy + ry}" stroke="${color}" stroke-width="1"/>
-                <line x1="${cx + rx}" y1="${cy - ry}" x2="${cx + rx}" y2="${cy + ry}" stroke="${color}" stroke-width="1"/>
-                <line x1="${cx - rx}" y1="${cy - ry/2}" x2="${cx + rx}" y2="${cy - ry/2}" stroke="${color}" stroke-width="1"/>
-                <line x1="${cx - rx}" y1="${cy}" x2="${cx + rx}" y2="${cy}" stroke="${color}" stroke-width="1"/>
-                <line x1="${cx - rx}" y1="${cy + ry/2}" x2="${cx + rx}" y2="${cy + ry/2}" stroke="${color}" stroke-width="1"/>
-            `;
-            break;
-        case 'stripes':
-            patternSvg = `
-                <line x1="${cx - rx}" y1="${cy - ry/2}" x2="${cx + rx}" y2="${cy - ry/2}" stroke="${color}" stroke-width="2"/>
-                <line x1="${cx - rx}" y1="${cy}" x2="${cx + rx}" y2="${cy}" stroke="${color}" stroke-width="2"/>
-                <line x1="${cx - rx}" y1="${cy + ry/2}" x2="${cx + rx}" y2="${cy + ry/2}" stroke="${color}" stroke-width="2"/>
-            `;
-            break;
+    // Simple Christmas melody (Jingle Bells fragment)
+    const melody = [
+        { freq: 659.25, duration: 0.4 }, // E
+        { freq: 659.25, duration: 0.4 }, // E
+        { freq: 659.25, duration: 0.8 }, // E
+        { freq: 659.25, duration: 0.4 }, // E
+        { freq: 659.25, duration: 0.4 }, // E
+        { freq: 659.25, duration: 0.8 }, // E
+        { freq: 659.25, duration: 0.4 }, // E
+        { freq: 783.99, duration: 0.4 }, // G
+        { freq: 523.25, duration: 0.4 }, // C
+        { freq: 587.33, duration: 0.4 }, // D
+        { freq: 659.25, duration: 1.2 }  // E
+    ];
+
+    let time = audioContext.currentTime;
+
+    function playNote(note) {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = note.freq;
+        oscillator.type = 'triangle';
+
+        gainNode.gain.setValueAtTime(0, time);
+        gainNode.gain.linearRampToValueAtTime(0.15, time + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, time + note.duration);
+
+        oscillator.start(time);
+        oscillator.stop(time + note.duration);
+
+        time += note.duration;
     }
 
-    return patternSvg;
+    function playMelody() {
+        time = audioContext.currentTime;
+        melody.forEach(note => playNote(note));
+    }
+
+    // Play once, then repeat every 8 seconds
+    playMelody();
+    setInterval(playMelody, 8000);
 }
