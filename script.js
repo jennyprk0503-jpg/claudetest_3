@@ -133,17 +133,23 @@ function selectLights(lightsType) {
 
 function generateLightPositions() {
     const positions = [];
-    const rows = 8;
+    const numLights = 40; // Total number of lights
+    const spirals = 3; // Number of times the garland wraps around
 
-    for (let row = 0; row < rows; row++) {
-        const y = 15 + (row * 8);
-        const width = 60 - (row * 7);
-        const numLights = Math.max(2, 5 - Math.floor(row / 2));
+    for (let i = 0; i < numLights; i++) {
+        const progress = i / numLights;
 
-        for (let i = 0; i < numLights; i++) {
-            const x = 50 - width/2 + (i * width / (numLights - 1));
-            positions.push({ x, y });
-        }
+        // Y position goes from top to bottom
+        const y = 15 + (progress * 65);
+
+        // Width decreases as we go down the tree (triangle shape)
+        const treeWidth = 60 - (progress * 50);
+
+        // X position oscillates left to right (diagonal/spiral effect)
+        const angle = progress * Math.PI * 2 * spirals;
+        const x = 50 + (Math.sin(angle) * treeWidth / 2);
+
+        positions.push({ x, y });
     }
 
     return positions;
@@ -419,19 +425,66 @@ function startSnowfall() {
 function playChristmasMusic() {
     if (!audioContext) return;
 
-    // Simple Christmas melody (Jingle Bells fragment)
+    // Complete Jingle Bells melody
     const melody = [
-        { freq: 659.25, duration: 0.4 }, // E
-        { freq: 659.25, duration: 0.4 }, // E
-        { freq: 659.25, duration: 0.8 }, // E
-        { freq: 659.25, duration: 0.4 }, // E
-        { freq: 659.25, duration: 0.4 }, // E
-        { freq: 659.25, duration: 0.8 }, // E
-        { freq: 659.25, duration: 0.4 }, // E
-        { freq: 783.99, duration: 0.4 }, // G
-        { freq: 523.25, duration: 0.4 }, // C
-        { freq: 587.33, duration: 0.4 }, // D
-        { freq: 659.25, duration: 1.2 }  // E
+        // Jingle bells, jingle bells, jingle all the way
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 659.25, duration: 0.6 }, // E
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 659.25, duration: 0.6 }, // E
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 783.99, duration: 0.3 }, // G
+        { freq: 523.25, duration: 0.45 }, // C
+        { freq: 587.33, duration: 0.15 }, // D
+        { freq: 659.25, duration: 1.2 }, // E
+
+        // Oh what fun it is to ride in a one-horse open sleigh
+        { freq: 698.46, duration: 0.3 }, // F
+        { freq: 698.46, duration: 0.3 }, // F
+        { freq: 698.46, duration: 0.45 }, // F
+        { freq: 698.46, duration: 0.15 }, // F
+        { freq: 698.46, duration: 0.3 }, // F
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 659.25, duration: 0.15 }, // E
+        { freq: 659.25, duration: 0.15 }, // E
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 587.33, duration: 0.3 }, // D
+        { freq: 587.33, duration: 0.3 }, // D
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 587.33, duration: 0.6 }, // D
+        { freq: 783.99, duration: 0.6 }, // G
+
+        // Jingle bells, jingle bells, jingle all the way
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 659.25, duration: 0.6 }, // E
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 659.25, duration: 0.6 }, // E
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 783.99, duration: 0.3 }, // G
+        { freq: 523.25, duration: 0.45 }, // C
+        { freq: 587.33, duration: 0.15 }, // D
+        { freq: 659.25, duration: 1.2 }, // E
+
+        // Oh what fun it is to ride in a one-horse open sleigh
+        { freq: 698.46, duration: 0.3 }, // F
+        { freq: 698.46, duration: 0.3 }, // F
+        { freq: 698.46, duration: 0.45 }, // F
+        { freq: 698.46, duration: 0.15 }, // F
+        { freq: 698.46, duration: 0.3 }, // F
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 659.25, duration: 0.3 }, // E
+        { freq: 659.25, duration: 0.15 }, // E
+        { freq: 659.25, duration: 0.15 }, // E
+        { freq: 783.99, duration: 0.3 }, // G
+        { freq: 783.99, duration: 0.3 }, // G
+        { freq: 698.46, duration: 0.3 }, // F
+        { freq: 587.33, duration: 0.3 }, // D
+        { freq: 523.25, duration: 1.2 }  // C
     ];
 
     let time = audioContext.currentTime;
@@ -444,10 +497,10 @@ function playChristmasMusic() {
         gainNode.connect(audioContext.destination);
 
         oscillator.frequency.value = note.freq;
-        oscillator.type = 'triangle';
+        oscillator.type = 'sine';
 
         gainNode.gain.setValueAtTime(0, time);
-        gainNode.gain.linearRampToValueAtTime(0.15, time + 0.01);
+        gainNode.gain.linearRampToValueAtTime(0.12, time + 0.01);
         gainNode.gain.exponentialRampToValueAtTime(0.01, time + note.duration);
 
         oscillator.start(time);
@@ -461,7 +514,7 @@ function playChristmasMusic() {
         melody.forEach(note => playNote(note));
     }
 
-    // Play once, then repeat every 8 seconds
+    // Play once, then repeat every 20 seconds (length of the melody)
     playMelody();
-    setInterval(playMelody, 8000);
+    setInterval(playMelody, 20000);
 }

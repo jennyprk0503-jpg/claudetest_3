@@ -101,17 +101,21 @@
     <div id="step3" class="screen step-screen">
         <h2 class="step-title">Choose Ornaments</h2>
         <div class="options-container ornament-options">
-            <div class="ornament-option" draggable="true" data-ornament="candy-cane">
-                <div class="ornament-preview candy-cane"></div>
-                <p>Candy Cane</p>
+            <div class="ornament-option" draggable="true" data-ornament="red-stripes">
+                <div class="ornament-preview red-stripes"></div>
+                <p>Red Stripes</p>
             </div>
-            <div class="ornament-option" draggable="true" data-ornament="deer">
-                <div class="ornament-preview deer"></div>
-                <p>Deer Head</p>
+            <div class="ornament-option" draggable="true" data-ornament="gold-stars">
+                <div class="ornament-preview gold-stars"></div>
+                <p>Gold Stars</p>
             </div>
-            <div class="ornament-option" draggable="true" data-ornament="gingerbread">
-                <div class="ornament-preview gingerbread"></div>
-                <p>Gingerbread Man</p>
+            <div class="ornament-option" draggable="true" data-ornament="blue-snowflake">
+                <div class="ornament-preview blue-snowflake"></div>
+                <p>Blue Snowflake</p>
+            </div>
+            <div class="ornament-option" draggable="true" data-ornament="green-dots">
+                <div class="ornament-preview green-dots"></div>
+                <p>Green Dots</p>
             </div>
         </div>
         <div class="tree-display">
@@ -124,17 +128,15 @@
 
     <!-- Step 4: Finale -->
     <div id="finale" class="screen step-screen">
+        <h1 class="finale-text">Merry Christmas!</h1>
         <div class="tree-display finale-display">
             <div id="final-tree" class="tree">
                 <div class="lights-container"></div>
                 <div class="ornaments-container"></div>
             </div>
         </div>
-        <h1 class="finale-text">Merry Christmas!</h1>
         <canvas id="snowfall-canvas"></canvas>
-        <audio id="christmas-music" loop>
-            <!-- Will use a data URL or external Christmas music -->
-        </audio>
+        <audio id="christmas-music" loop></audio>
     </div>
 
     <!-- Navigation Arrows -->

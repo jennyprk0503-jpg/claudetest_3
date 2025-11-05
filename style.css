@@ -414,69 +414,95 @@ body {
     width: 60px;
     height: 60px;
     position: relative;
-}
-
-/* Candy Cane */
-.candy-cane {
-    background: linear-gradient(45deg,
-        red 0%, red 25%,
-        white 25%, white 50%,
-        red 50%, red 75%,
-        white 75%, white 100%);
-    background-size: 20px 20px;
-    border-radius: 15px 15px 15px 50px;
-    border: 2px solid white;
-}
-
-/* Deer Head */
-.deer {
-    background: #8b4513;
     border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    box-shadow: inset 0 -5px 10px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Red Stripes Ornament */
+.red-stripes {
+    background:
+        repeating-linear-gradient(
+            45deg,
+            #c41e3a,
+            #c41e3a 8px,
+            #ffffff 8px,
+            #ffffff 16px
+        );
+}
+
+.red-stripes::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: gold;
+    border-radius: 50%;
+    box-shadow: 0 0 5px gold;
+}
+
+/* Gold Stars Ornament */
+.gold-stars {
+    background: #FFD700;
     position: relative;
 }
 
-.deer::before {
-    content: '';
+.gold-stars::before,
+.gold-stars::after {
+    content: '★';
     position: absolute;
-    top: -10px;
-    left: 5px;
-    width: 15px;
-    height: 25px;
-    background: #8b4513;
-    border-radius: 3px;
-    transform: rotate(-45deg);
-}
-
-.deer::after {
-    content: '';
-    position: absolute;
-    top: -10px;
-    right: 5px;
-    width: 15px;
-    height: 25px;
-    background: #8b4513;
-    border-radius: 3px;
-    transform: rotate(45deg);
-}
-
-/* Gingerbread Man */
-.gingerbread {
-    background: #cd853f;
-    border-radius: 40% 40% 50% 50%;
-    position: relative;
-    border: 2px solid #8b4513;
-}
-
-.gingerbread::before {
-    content: '';
-    position: absolute;
+    color: #c41e3a;
+    font-size: 20px;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+.gold-stars::after {
+    font-size: 12px;
+    top: 30%;
+    left: 30%;
+}
+
+/* Blue Snowflake Ornament */
+.blue-snowflake {
+    background: #4169e1;
+    position: relative;
+}
+
+.blue-snowflake::before {
+    content: '❄';
+    position: absolute;
+    color: white;
+    font-size: 30px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Green Dots Ornament */
+.green-dots {
+    background: #228b22;
+    position: relative;
+}
+
+.green-dots::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 15px;
     width: 8px;
     height: 8px;
     background: white;
     border-radius: 50%;
+    box-shadow:
+        20px 0 0 white,
+        10px 15px 0 white,
+        20px 20px 0 white,
+        0 20px 0 white;
 }
 
 /* Tree Display */
@@ -672,12 +698,14 @@ body {
 }
 
 .finale-display {
-    margin-top: 0;
+    margin-top: 5rem;
 }
 
 .finale-text {
     position: fixed;
-    bottom: 5rem;
+    top: 3rem;
+    left: 50%;
+    transform: translateX(-50%);
     color: white;
     font-size: 4rem;
     text-shadow: 2px 2px 20px rgba(255, 215, 0, 0.8);
@@ -687,11 +715,11 @@ body {
 
 @keyframes scaleIn {
     0% {
-        transform: scale(0);
+        transform: translateX(-50%) scale(0);
         opacity: 0;
     }
     100% {
-        transform: scale(1);
+        transform: translateX(-50%) scale(1);
         opacity: 1;
     }
 }
