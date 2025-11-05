@@ -3,135 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nail Painting Interactive</title>
+    <title>Interactive Christmas Tree Decorator</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- Welcome Screen -->
     <div id="welcome-screen" class="screen active">
-        <div class="hand-container">
-            <svg id="welcome-hand" viewBox="0 0 300 400" class="hand-svg">
-                <!-- Palm -->
-                <ellipse cx="150" cy="280" rx="80" ry="100" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-
-                <!-- Thumb -->
-                <g class="finger">
-                    <ellipse cx="80" cy="240" rx="20" ry="35" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <ellipse cx="80" cy="200" rx="18" ry="28" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <rect x="62" y="170" width="36" height="25" rx="18" fill="#ffc0cb" class="nail"/>
-                </g>
-
-                <!-- Index Finger -->
-                <g class="finger">
-                    <ellipse cx="120" cy="180" rx="18" ry="40" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <ellipse cx="120" cy="130" rx="16" ry="35" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <rect x="104" y="90" width="32" height="25" rx="16" fill="#ffc0cb" class="nail"/>
-                </g>
-
-                <!-- Middle Finger -->
-                <g class="finger">
-                    <ellipse cx="150" cy="160" rx="18" ry="45" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <ellipse cx="150" cy="105" rx="16" ry="40" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <rect x="134" y="60" width="32" height="28" rx="16" fill="#ffc0cb" class="nail"/>
-                </g>
-
-                <!-- Ring Finger -->
-                <g class="finger">
-                    <ellipse cx="180" cy="170" rx="18" ry="42" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <ellipse cx="180" cy="120" rx="16" ry="38" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <rect x="164" y="80" width="32" height="26" rx="16" fill="#ffc0cb" class="nail"/>
-                </g>
-
-                <!-- Pinky -->
-                <g class="finger">
-                    <ellipse cx="210" cy="200" rx="16" ry="35" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <ellipse cx="210" cy="155" rx="14" ry="30" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <rect x="196" y="125" width="28" height="22" rx="14" fill="#ffc0cb" class="nail"/>
-                </g>
-            </svg>
+        <div class="santa-face">
+            <div class="santa-hat"></div>
+            <div class="santa-head">
+                <div class="eyes">
+                    <div class="eye left"></div>
+                    <div class="eye right"></div>
+                </div>
+                <div class="nose"></div>
+                <div class="beard">
+                    <div class="mouth"></div>
+                </div>
+            </div>
         </div>
-        <h1 class="welcome-text">Help me paint my nails!</h1>
-        <p class="click-prompt">Click anywhere to begin</p>
+        <h1 class="top-text">Let's make a Christmas tree!</h1>
+        <h2 class="bottom-text">Ho Ho Ho! Merry Christmas!</h2>
+        <p class="click-to-start">Click anywhere to start</p>
     </div>
 
-    <!-- Selection Screen -->
-    <div id="selection-screen" class="screen">
-        <!-- Navigation Arrows -->
-        <button class="nav-arrow left-arrow" id="prev-btn">
-            <span>&lt;</span>
-        </button>
-        <button class="nav-arrow right-arrow" id="next-btn">
-            <span>&gt;</span>
-        </button>
-
-        <!-- Options Container -->
-        <div id="options-container" class="options-container"></div>
-
-        <!-- Current Step Display -->
-        <div class="step-indicator" id="step-indicator"></div>
-
-        <!-- Single Nail Display -->
-        <div id="nail-display" class="nail-display">
-            <svg viewBox="0 0 200 300" class="single-nail-svg">
-                <g id="single-nail">
-                    <!-- Will be populated by JavaScript -->
-                </g>
-            </svg>
+    <!-- Step 1: Choose Your Tree -->
+    <div id="step1" class="screen step-screen">
+        <h2 class="step-title">Choose Your Tree</h2>
+        <div class="options-container tree-options">
+            <div class="tree-option" data-tree="snow">
+                <div class="tree-preview snow-tree"></div>
+                <p>Snow White</p>
+            </div>
+            <div class="tree-option" data-tree="green">
+                <div class="tree-preview green-tree"></div>
+                <p>Classic Green</p>
+            </div>
+            <div class="tree-option" data-tree="pink">
+                <div class="tree-preview pink-tree"></div>
+                <p>Light Pink</p>
+            </div>
+            <div class="tree-option" data-tree="blue">
+                <div class="tree-preview blue-tree"></div>
+                <p>Light Blue</p>
+            </div>
+        </div>
+        <div class="tree-display">
+            <div id="selected-tree" class="tree"></div>
         </div>
     </div>
 
-    <!-- Final Screen -->
-    <div id="final-screen" class="screen">
-        <div class="hand-container">
-            <svg id="final-hand" viewBox="0 0 300 400" class="hand-svg">
-                <!-- Palm -->
-                <ellipse cx="150" cy="280" rx="80" ry="100" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-
-                <!-- Thumb -->
-                <g class="finger">
-                    <ellipse cx="80" cy="240" rx="20" ry="35" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <ellipse cx="80" cy="200" rx="18" ry="28" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <g class="final-nail" data-nail="0"></g>
-                </g>
-
-                <!-- Index Finger -->
-                <g class="finger">
-                    <ellipse cx="120" cy="180" rx="18" ry="40" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <ellipse cx="120" cy="130" rx="16" ry="35" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <g class="final-nail" data-nail="1"></g>
-                </g>
-
-                <!-- Middle Finger -->
-                <g class="finger">
-                    <ellipse cx="150" cy="160" rx="18" ry="45" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <ellipse cx="150" cy="105" rx="16" ry="40" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <g class="final-nail" data-nail="2"></g>
-                </g>
-
-                <!-- Ring Finger -->
-                <g class="finger">
-                    <ellipse cx="180" cy="170" rx="18" ry="42" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <ellipse cx="180" cy="120" rx="16" ry="38" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <g class="final-nail" data-nail="3"></g>
-                </g>
-
-                <!-- Pinky -->
-                <g class="finger">
-                    <ellipse cx="210" cy="200" rx="16" ry="35" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <ellipse cx="210" cy="155" rx="14" ry="30" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
-                    <g class="final-nail" data-nail="4"></g>
-                </g>
-            </svg>
+    <!-- Step 2: Choose Tree Lights -->
+    <div id="step2" class="screen step-screen">
+        <h2 class="step-title">Choose Tree Lights</h2>
+        <div class="options-container lights-options">
+            <div class="light-option" data-lights="mixed">
+                <div class="light-preview">
+                    <span class="preview-light" style="background: red;"></span>
+                    <span class="preview-light" style="background: blue;"></span>
+                    <span class="preview-light" style="background: yellow;"></span>
+                </div>
+                <p>Mixed Colors</p>
+            </div>
+            <div class="light-option" data-lights="white">
+                <div class="light-preview">
+                    <span class="preview-light" style="background: white;"></span>
+                    <span class="preview-light" style="background: white;"></span>
+                    <span class="preview-light" style="background: white;"></span>
+                </div>
+                <p>White</p>
+            </div>
+            <div class="light-option" data-lights="yellow">
+                <div class="light-preview">
+                    <span class="preview-light" style="background: #FFD700;"></span>
+                    <span class="preview-light" style="background: #FFD700;"></span>
+                    <span class="preview-light" style="background: #FFD700;"></span>
+                </div>
+                <p>Yellow</p>
+            </div>
+            <div class="light-option" data-lights="orange">
+                <div class="light-preview">
+                    <span class="preview-light" style="background: orange;"></span>
+                    <span class="preview-light" style="background: orange;"></span>
+                    <span class="preview-light" style="background: orange;"></span>
+                </div>
+                <p>Orange</p>
+            </div>
         </div>
-        <h1 class="thank-you-text">Wow, thank you!</h1>
-        <div class="sparkles">
-            <div class="sparkle"></div>
-            <div class="sparkle"></div>
-            <div class="sparkle"></div>
-            <div class="sparkle"></div>
-            <div class="sparkle"></div>
+        <div class="tree-display">
+            <div id="tree-with-lights" class="tree">
+                <div class="lights-container"></div>
+            </div>
         </div>
     </div>
+
+    <!-- Step 3: Choose Ornaments -->
+    <div id="step3" class="screen step-screen">
+        <h2 class="step-title">Choose Ornaments</h2>
+        <div class="options-container ornament-options">
+            <div class="ornament-option" draggable="true" data-ornament="candy-cane">
+                <div class="ornament-preview candy-cane"></div>
+                <p>Candy Cane</p>
+            </div>
+            <div class="ornament-option" draggable="true" data-ornament="deer">
+                <div class="ornament-preview deer"></div>
+                <p>Deer Head</p>
+            </div>
+            <div class="ornament-option" draggable="true" data-ornament="gingerbread">
+                <div class="ornament-preview gingerbread"></div>
+                <p>Gingerbread Man</p>
+            </div>
+        </div>
+        <div class="tree-display">
+            <div id="tree-with-ornaments" class="tree drop-zone">
+                <div class="lights-container"></div>
+                <div class="ornaments-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 4: Finale -->
+    <div id="finale" class="screen step-screen">
+        <div class="tree-display finale-display">
+            <div id="final-tree" class="tree">
+                <div class="lights-container"></div>
+                <div class="ornaments-container"></div>
+            </div>
+        </div>
+        <h1 class="finale-text">Merry Christmas!</h1>
+        <canvas id="snowfall-canvas"></canvas>
+        <audio id="christmas-music" loop>
+            <!-- Will use a data URL or external Christmas music -->
+        </audio>
+    </div>
+
+    <!-- Navigation Arrows -->
+    <button id="prev-arrow" class="nav-arrow prev" aria-label="Previous step">‹</button>
+    <button id="next-arrow" class="nav-arrow next" aria-label="Next step">›</button>
 
     <script src="script.js"></script>
 </body>
