@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nail Painting Interactive</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="screen active">
+        <div class="hand-container">
+            <svg id="welcome-hand" viewBox="0 0 300 400" class="hand-svg">
+                <!-- Palm -->
+                <ellipse cx="150" cy="280" rx="80" ry="100" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+
+                <!-- Thumb -->
+                <g class="finger">
+                    <ellipse cx="80" cy="240" rx="20" ry="35" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <ellipse cx="80" cy="200" rx="18" ry="28" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <rect x="62" y="170" width="36" height="25" rx="18" fill="#ffc0cb" class="nail"/>
+                </g>
+
+                <!-- Index Finger -->
+                <g class="finger">
+                    <ellipse cx="120" cy="180" rx="18" ry="40" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <ellipse cx="120" cy="130" rx="16" ry="35" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <rect x="104" y="90" width="32" height="25" rx="16" fill="#ffc0cb" class="nail"/>
+                </g>
+
+                <!-- Middle Finger -->
+                <g class="finger">
+                    <ellipse cx="150" cy="160" rx="18" ry="45" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <ellipse cx="150" cy="105" rx="16" ry="40" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <rect x="134" y="60" width="32" height="28" rx="16" fill="#ffc0cb" class="nail"/>
+                </g>
+
+                <!-- Ring Finger -->
+                <g class="finger">
+                    <ellipse cx="180" cy="170" rx="18" ry="42" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <ellipse cx="180" cy="120" rx="16" ry="38" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <rect x="164" y="80" width="32" height="26" rx="16" fill="#ffc0cb" class="nail"/>
+                </g>
+
+                <!-- Pinky -->
+                <g class="finger">
+                    <ellipse cx="210" cy="200" rx="16" ry="35" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <ellipse cx="210" cy="155" rx="14" ry="30" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <rect x="196" y="125" width="28" height="22" rx="14" fill="#ffc0cb" class="nail"/>
+                </g>
+            </svg>
+        </div>
+        <h1 class="welcome-text">Help me paint my nails!</h1>
+        <p class="click-prompt">Click anywhere to begin</p>
+    </div>
+
+    <!-- Selection Screen -->
+    <div id="selection-screen" class="screen">
+        <!-- Navigation Arrows -->
+        <button class="nav-arrow left-arrow" id="prev-btn">
+            <span>&lt;</span>
+        </button>
+        <button class="nav-arrow right-arrow" id="next-btn">
+            <span>&gt;</span>
+        </button>
+
+        <!-- Options Container -->
+        <div id="options-container" class="options-container"></div>
+
+        <!-- Current Step Display -->
+        <div class="step-indicator" id="step-indicator"></div>
+
+        <!-- Single Nail Display -->
+        <div id="nail-display" class="nail-display">
+            <svg viewBox="0 0 200 300" class="single-nail-svg">
+                <g id="single-nail">
+                    <!-- Will be populated by JavaScript -->
+                </g>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Final Screen -->
+    <div id="final-screen" class="screen">
+        <div class="hand-container">
+            <svg id="final-hand" viewBox="0 0 300 400" class="hand-svg">
+                <!-- Palm -->
+                <ellipse cx="150" cy="280" rx="80" ry="100" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+
+                <!-- Thumb -->
+                <g class="finger">
+                    <ellipse cx="80" cy="240" rx="20" ry="35" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <ellipse cx="80" cy="200" rx="18" ry="28" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <g class="final-nail" data-nail="0"></g>
+                </g>
+
+                <!-- Index Finger -->
+                <g class="finger">
+                    <ellipse cx="120" cy="180" rx="18" ry="40" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <ellipse cx="120" cy="130" rx="16" ry="35" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <g class="final-nail" data-nail="1"></g>
+                </g>
+
+                <!-- Middle Finger -->
+                <g class="finger">
+                    <ellipse cx="150" cy="160" rx="18" ry="45" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <ellipse cx="150" cy="105" rx="16" ry="40" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <g class="final-nail" data-nail="2"></g>
+                </g>
+
+                <!-- Ring Finger -->
+                <g class="finger">
+                    <ellipse cx="180" cy="170" rx="18" ry="42" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <ellipse cx="180" cy="120" rx="16" ry="38" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <g class="final-nail" data-nail="3"></g>
+                </g>
+
+                <!-- Pinky -->
+                <g class="finger">
+                    <ellipse cx="210" cy="200" rx="16" ry="35" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <ellipse cx="210" cy="155" rx="14" ry="30" fill="#f4d3b8" stroke="#e0b89a" stroke-width="2"/>
+                    <g class="final-nail" data-nail="4"></g>
+                </g>
+            </svg>
+        </div>
+        <h1 class="thank-you-text">Wow, thank you!</h1>
+        <div class="sparkles">
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
